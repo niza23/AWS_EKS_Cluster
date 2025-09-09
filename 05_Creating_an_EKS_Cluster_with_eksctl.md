@@ -71,7 +71,6 @@ The Nginx pod will be scheduled to **Fargate**, without you managing any EC2 nod
 * `eksctl create cluster --fargate` → makes a serverless EKS cluster.
 * `eksctl create fargateprofile` → decides which namespaces/apps run on Fargate.
 * Pods run on AWS-managed infra (you don’t manage nodes).
-Excellent question — you’ve caught the key detail 🔑
 
 ---
 
