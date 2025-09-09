@@ -68,13 +68,30 @@ aws eks update-kubeconfig --name my-cluster --region us-east-1
 * You create a Fargate profile with `namespace=default`.
 * Any pod in `default` automatically runs on Fargate.
 
----
-
-## 2️⃣ Why Do You Need a Fargate Profile?
-
-* Fargate doesn’t run **all pods by default** — it only runs pods that match a **profile**.
-* Without a profile, pods will **not schedule** on Fargate and might fail to start.
-* Profiles let you **control which workloads use serverless compute** vs. EC2.
+```
++------------------------+
+|   Kubernetes Cluster   |
++------------------------+
+        |
+        v
+   +------------+       +------------+
+   | Namespace: |       | Namespace: |
+   |  default   |       |   dev      |
+   +------------+       +------------+
+        |                   |
+        v                   v
++----------------+    +----------------+
+| Fargate Profile|    | No Fargate     |
+|  (default)     |    | pods run on EC2|
++----------------+    +----------------+
+        |
+        v
++----------------+
+| Pods on Fargate|
++----------------+
+```
+* Pods in a namespace match a Fargate profile → run serverless.
+* Pods in other namespaces without a profile → need EC2 nodes.
 
 ---
 
