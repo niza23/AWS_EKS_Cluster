@@ -1,5 +1,5 @@
 
-## 1️⃣ What is the kubeconfig file?
+## ⚡1️⃣ What is the kubeconfig file?
 
 * **kubeconfig** is a YAML file that contains:
 
@@ -48,7 +48,7 @@ aws eks update-kubeconfig --name my-cluster --region us-east-1
 
 ---
 
-## 1️⃣ What is a Fargate Profile?
+## ⚡1️⃣ What is a Fargate Profile?
 
 * **Fargate profile** defines **which pods run on AWS Fargate** instead of EC2 nodes.
 * It maps **Kubernetes namespaces and labels** to Fargate.
