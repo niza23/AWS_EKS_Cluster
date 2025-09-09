@@ -10,6 +10,11 @@ There are **3 main ways**:
 
 ## 1. **Managed Node Groups (AWS-managed EC2)**
 
+
+* AWS gives you EC2 machines to run your pods.
+* AWS keeps them patched and updated.
+* You just choose size (t2.medium, m5.large, GPU, etc.).
+* 
 * AWS creates and manages an **Auto Scaling Group** of EC2 instances for you.
 * AWS keeps the EC2 nodes patched and updated (you decide when to upgrade).
 * You just choose instance type, number of nodes, scaling rules.
@@ -37,6 +42,9 @@ There are **3 main ways**:
 
 ## 2. **Self-Managed Nodes (DIY EC2)**
 
+*You create EC2 machines yourself and connect them to EKS.
+*You pick OS, AMI, scaling, and do updates.
+*
 * You launch your own EC2 instances and connect them to the EKS cluster.
 * You install the EKS-optimized AMI or build a custom AMI.
 * You are responsible for updates, scaling, patching, and node replacement.
@@ -65,6 +73,9 @@ There are **3 main ways**:
 
 ## 3. **AWS Fargate (Serverless Pods)**
 
+* No EC2 at all.
+* You just say “run this pod” → AWS finds space for it.
+* 
 * No EC2 at all – AWS runs your pods directly on its own infrastructure.
 * Each pod gets isolated compute, auto-provisioned on demand.
 * You only pay for CPU & memory requested by the pod.
