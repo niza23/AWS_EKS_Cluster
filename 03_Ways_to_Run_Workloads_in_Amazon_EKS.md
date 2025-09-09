@@ -42,8 +42,8 @@ There are **3 main ways**:
 
 ## 2. **Self-Managed Nodes (DIY EC2)**
 
-*You create EC2 machines yourself and connect them to EKS.
-*You pick OS, AMI, scaling, and do updates.
+* You create EC2 machines yourself and connect them to EKS.
+* You pick OS, AMI, scaling, and do updates.
 *
 * You launch your own EC2 instances and connect them to the EKS cluster.
 * You install the EKS-optimized AMI or build a custom AMI.
