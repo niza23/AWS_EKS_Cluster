@@ -71,6 +71,56 @@ The Nginx pod will be scheduled to **Fargate**, without you managing any EC2 nod
 * `eksctl create cluster --fargate` → makes a serverless EKS cluster.
 * `eksctl create fargateprofile` → decides which namespaces/apps run on Fargate.
 * Pods run on AWS-managed infra (you don’t manage nodes).
+Excellent question — you’ve caught the key detail 🔑
+
+---
+
+Even though **Fargate runs pods without you managing EC2 nodes**, *under the hood* AWS still uses **servers (EC2 or similar infrastructure)**. But:
+
+* You don’t **see** or **control** them.
+* AWS abstracts them away.
+* AWS takes care of provisioning, patching, scaling, and retiring those servers.
+
+---
+
+### 🧩 So where does Fargate actually schedule pods?
+
+* When you deploy a pod in EKS with Fargate, the **Kubernetes scheduler** in the EKS control plane sends it to a **Fargate profile**.
+* Fargate then launches that pod inside a **secure microVM** (built with AWS Firecracker technology).
+* Each pod gets its **own isolated microVM** — like a tiny virtual machine created just for that pod.
+* These microVMs run on AWS’s massive shared EC2 fleet, but you don’t interact with those hosts at all.
+
+---
+
+### ⚡ Key Concept
+
+* With **EC2 nodes**, you see and manage the worker nodes.
+* With **Fargate**, pods go into AWS-managed **microVMs**. You only specify CPU + memory.
+
+---
+
+### 📊 Diagram
+
+```
+EKS Control Plane
+    |
+    | Schedules Pod
+    v
+Fargate Profile
+    |
+    | Creates secure microVM (Firecracker)
+    v
+Pod runs inside microVM (isolated, ephemeral)
+    |
+    | Uses AWS-managed infrastructure
+    v
+Underlying EC2 fleet (hidden from you)
+```
+
+---
+
+👉 So the answer is:
+Fargate **does run pods on AWS servers**, but inside **microVMs** you don’t manage. This is why it feels “serverless” — because AWS takes care of the EC2 fleet and you only deal with pods.
 
 ---
 ---
