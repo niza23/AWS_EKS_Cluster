@@ -119,7 +119,7 @@ Underlying EC2 fleet (hidden from you)
 
 ---
 
-👉 So the answer is:
+👉
 Fargate **does run pods on AWS servers**, but inside **microVMs** you don’t manage. This is why it feels “serverless” — because AWS takes care of the EC2 fleet and you only deal with pods.
 
 ---
