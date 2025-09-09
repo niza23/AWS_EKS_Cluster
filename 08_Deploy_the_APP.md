@@ -119,3 +119,99 @@ eksctl create fargateprofile \
 ✅ This creates the profile and automatically provisions Fargate resources when pods match.
 
 ---
+
+## ⚡1️⃣ The Command
+
+```bash
+kubectl apply -f https://raw.githubusercontent.com/kubernetes-sigs/aws-load-balancer-controller/v2.5.4/docs/examples/2048/2048_full.yaml
+```
+
+### What it means:
+
+* **`kubectl apply`** → This tells Kubernetes: *“Apply this configuration to the cluster. Create or update resources as needed.”*
+* **`-f <file>`** → Specifies the **file or URL** containing Kubernetes manifests (YAML files).
+* **The URL** → Points to a pre-made example provided by the **AWS Load Balancer Controller team**, version 2.5.4.
+
+---
+
+## 2️⃣ What’s Inside the YAML (`2048_full.yaml`)
+
+This YAML contains **multiple Kubernetes resources** for a demo application (the 2048 game) including:
+
+1. **Deployment**
+
+   * Specifies the container image and how many pods to run.
+   * Ensures the app is running and can scale.
+
+2. **Service**
+
+   * Exposes the deployment internally or externally.
+   * Usually creates a ClusterIP, NodePort, or LoadBalancer service type.
+
+3. **Ingress**
+
+   * Handles **HTTP routing** from outside the cluster to your service.
+   * Integrates with AWS **Application Load Balancer (ALB)** via the **AWS Load Balancer Controller**.
+   * Allows you to access the app using a URL (DNS).
+
+---
+
+## 3️⃣ How it Works With EKS + Fargate
+
+* The deployment will create **pods on Fargate** (if your namespace matches the Fargate profile).
+* The service tells Kubernetes how to route traffic **to those pods**.
+* The ingress communicates with the **AWS Load Balancer Controller**, which:
+
+  1. Creates an **ALB** in your VPC.
+  2. Configures routing rules to forward traffic to your service pods.
+
+---
+
+## 4️⃣ Verification
+
+After applying the YAML:
+
+```bash
+kubectl get deployments
+kubectl get pods
+kubectl get services
+kubectl get ingress
+```
+
+* **Deployment** → should show 1 or more pods running.
+* **Pods** → should be in `Running` state.
+* **Service** → check `EXTERNAL-IP` (for LoadBalancer type).
+* **Ingress** → will show a hostname (AWS ALB DNS) you can use to access the app.
+
+---
+
+## 5️⃣ Text Diagram
+
+```
+[Internet]
+    |
+    v
+[AWS ALB] <-- created by AWS Load Balancer Controller
+    |
+    v
+[Kubernetes Ingress] -- routes traffic -->
+    |
+    v
+[Kubernetes Service] -- forwards to -->
+    |
+    v
+[Kubernetes Deployment] -- runs pods on Fargate -->
+    |
+    v
+[2048 App Pods]
+```
+
+---
+
+✅ **Summary:**
+
+* This command deploys a **demo app** with full Kubernetes resources.
+* It demonstrates how **pods (on Fargate)**, **services**, **ingress**, and **AWS ALB** work together.
+* Using the **YAML from AWS repo** saves you from writing everything manually.
+
+---
