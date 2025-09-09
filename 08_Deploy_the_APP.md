@@ -47,6 +47,8 @@ aws eks update-kubeconfig --name my-cluster --region us-east-1
 * This automatically writes your kubeconfig locally (usually at `~/.kube/config`) or merges with an existing one.
 
 ---
+---
+
 
 ## ⚡1️⃣ What is a Fargate Profile?
 
@@ -119,6 +121,8 @@ eksctl create fargateprofile \
 ✅ This creates the profile and automatically provisions Fargate resources when pods match.
 
 ---
+---
+
 
 ## ⚡1️⃣ The Command
 
