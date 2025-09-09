@@ -38,7 +38,7 @@ This can be **on-prem (bare metal)**, **VMs**, or **cloud instances (like AWS EC
 
 ---
 
-## 2. Semi-Managed (Tools like Kops, kubeadm, Rancher)
+## 2. Semi-Managed (Tools like Kops-kubernetes operations, kubeadm, Rancher)
 
 These tools help you **bootstrap and manage** clusters.
 They automate installation of control plane + worker nodes, networking, and IAM setup.
