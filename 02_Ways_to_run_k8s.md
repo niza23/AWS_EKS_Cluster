@@ -24,7 +24,7 @@ This can be **on-prem (bare metal)**, **VMs**, or **cloud instances (like AWS EC
 * You handle upgrades, HA, scaling, security.
 * High risk of misconfigurations.
 
-### 📊 ASCII Diagram
+### 📊  Diagram
 
 ```
          ┌──────────────────────────────┐
@@ -67,7 +67,7 @@ Examples:
 * You handle scaling, monitoring, patching.
 * Requires expertise in both Kubernetes + tool.
 
-### 📊 ASCII Diagram
+### 📊 Diagram
 
 ```
          ┌──────────────────────────────┐
@@ -112,7 +112,7 @@ Examples:
 * Less flexibility in cluster internals.
 * Some vendor lock-in (though still CNCF-certified).
 
-### 📊 ASCII Diagram
+### 📊 Diagram
 
 ```
          ┌──────────────────────────────┐
