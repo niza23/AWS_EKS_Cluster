@@ -74,7 +74,7 @@ The Nginx pod will be scheduled to **Fargate**, without you managing any EC2 nod
 
 ---
 
-Even though **Fargate runs pods without you managing EC2 nodes**, *under the hood* AWS still uses **servers (EC2 or similar infrastructure)**. But:
+✅ Even though **Fargate runs pods without you managing EC2 nodes**, *under the hood* AWS still uses **servers (EC2 or similar infrastructure)**. But:
 
 * You don’t **see** or **control** them.
 * AWS abstracts them away.
