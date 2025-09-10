@@ -59,7 +59,7 @@ AWS APIs (create/manage ALB, Target Groups, etc.)
 export cluster_name=demo-cluster
 ```
 
-### 2. Get the OIDC ID of the cluster
+### 2. Get the OIDC ID of the cluster (either using CLI or from the AWS UI as well)
 
 ```bash
 oidc_id=$(aws eks describe-cluster \
