@@ -84,6 +84,11 @@ kubectl get deployment -n kube-system aws-load-balancer-controller
 If it shows **READY**, the controller is working.
 
 ---
+## You can check from the UI or console if the ALB has been created or not.
+```bash
+kubectl get ingress -n <name>
+```
+----> You will get the ADDRESS, you can access the application using http://<ADDRESS>
 
 # ✅ Summary Flow
 
