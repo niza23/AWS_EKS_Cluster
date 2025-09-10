@@ -1,6 +1,6 @@
 
 
-# 📝 Steps to Setup AWS Load Balancer Controller (Brief Explanation)
+# 📝 Steps to Setup AWS Load Balancer Controller 
 
 ### 1️⃣ **Download IAM Policy**
 
