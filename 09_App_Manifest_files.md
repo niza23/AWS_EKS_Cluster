@@ -1,219 +1,168 @@
 
-# Sample EKS Application Deployment
 
-This repository demonstrates deploying a **sample application** on Amazon EKS using Kubernetes **Deployment**, **Service**, and optionally **Ingress** (if external access is needed).
+# 🕹️ Deploying the 2048 Game on Amazon EKS
 
-It ensures pods run on **Linux nodes**, with support for **Fargate or EC2 nodes**.
+This project demonstrates deploying the **2048 game** on an EKS cluster using Kubernetes resources: **Namespace, Deployment, Service, and Ingress**.
 
 ---
 
-## Prerequisites
+## 📂 Files in this Deployment
 
-* An **EKS cluster** running (Fargate or EC2)
-* **kubectl** installed and configured to access your cluster
-* **IAM permissions** to deploy resources in the cluster
+### 1. Namespace
 
-Verify access:
-
-```bash
-kubectl get nodes
-kubectl get namespaces
+```yaml
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: game-2048
 ```
 
+* Creates a separate Kubernetes **namespace** called `game-2048` to logically isolate this app from other workloads.
+* Namespaces help with organizing resources, applying resource quotas, and managing access.
+
 ---
 
-## 1️⃣ Deployment
-
-### Step 1: Create `deploy.yml`
+### 2. Deployment
 
 ```yaml
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: eks-sample-linux-deployment
-  labels:
-    app: eks-sample-linux-app
+  namespace: game-2048
+  name: deployment-2048
 spec:
-  replicas: 3
+  replicas: 5
   selector:
     matchLabels:
-      app: eks-sample-linux-app
+      app.kubernetes.io/name: app-2048
   template:
     metadata:
       labels:
-        app: eks-sample-linux-app
+        app.kubernetes.io/name: app-2048
     spec:
-      affinity:
-        nodeAffinity:
-          requiredDuringSchedulingIgnoredDuringExecution:
-            nodeSelectorTerms:
-            - matchExpressions:
-              - key: kubernetes.io/arch
-                operator: In
-                values:
-                - amd64
-                - arm64
       containers:
-      - name: nginx
-        image: public.ecr.aws/nginx/nginx:1.23
+      - image: public.ecr.aws/l6m2t8p7/docker-2048:latest
+        imagePullPolicy: Always
+        name: app-2048
         ports:
-        - name: http
-          containerPort: 80
-        imagePullPolicy: IfNotPresent
-      nodeSelector:
-        kubernetes.io/os: linux
+        - containerPort: 80
 ```
 
-### Step 2: Deploy the application
-
-```bash
-kubectl apply -f deploy.yml
-kubectl get deployments
-kubectl get pods
-```
-
-**Explanation:**
-
-* Runs **3 replicas** of an Nginx pod
-* Ensures pods run only on **Linux nodes** and compatible CPU architecture
-* Uses `IfNotPresent` image pull policy to avoid re-downloading images
+* Deploys **5 replicas (pods)** of the 2048 game.
+* Uses the container image: `public.ecr.aws/l6m2t8p7/docker-2048:latest`.
+* Exposes port **80** inside each pod.
+* Ensures high availability and load balancing by running multiple replicas.
 
 ---
 
-## 2️⃣ Service
-
-### Step 1: Create `service.yml`
+### 3. Service
 
 ```yaml
 apiVersion: v1
 kind: Service
 metadata:
-  name: eks-sample-linux-service
-  labels:
-    app: eks-sample-linux-app
+  namespace: game-2048
+  name: service-2048
 spec:
-  selector:
-    app: eks-sample-linux-app
   ports:
-    - protocol: TCP
-      port: 80
+    - port: 80
       targetPort: 80
+      protocol: TCP
+  type: NodePort
+  selector:
+    app.kubernetes.io/name: app-2048
 ```
 
-> Optional: To expose externally, add `type: LoadBalancer`:
+* Exposes the deployment inside the cluster via a **Service**.
+* Type: `NodePort` → assigns a port on each worker node (or Fargate-managed IP) to forward requests to pods.
+* Routes traffic to pods that match the label `app.kubernetes.io/name: app-2048`.
+
+---
+
+### 4. Ingress
 
 ```yaml
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  namespace: game-2048
+  name: ingress-2048
+  annotations:
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    alb.ingress.kubernetes.io/target-type: ip
 spec:
-  type: LoadBalancer
+  ingressClassName: alb
+  rules:
+    - http:
+        paths:
+        - path: /
+          pathType: Prefix
+          backend:
+            service:
+              name: service-2048
+              port:
+                number: 80
 ```
 
-### Step 2: Deploy the service
+* Creates an **Ingress** resource that uses the AWS **ALB Ingress Controller**.
+* **Annotations**:
 
-```bash
-kubectl apply -f service.yml
-kubectl get svc
-```
-
-**Explanation:**
-
-* Routes traffic to pods labeled `app: eks-sample-linux-app`
-* Port 80 is exposed for HTTP traffic
-* Service type can be **internal (ClusterIP)** or **external (LoadBalancer)**
+  * `alb.ingress.kubernetes.io/scheme: internet-facing` → makes the ALB public.
+  * `alb.ingress.kubernetes.io/target-type: ip` → targets pods by IP (works well with Fargate).
+* Maps external traffic (`/`) to the `service-2048` on port **80**.
 
 ---
 
-## 3️⃣ Ingress (Optional)
+## ⚙️ Deployment Steps
 
-If you want external HTTP access using **AWS ALB**, create an Ingress resource (requires AWS Load Balancer Controller):
+1. Save the manifest file locally, e.g., `2048-game.yaml`.
+2. Apply it to your EKS cluster:
 
-```bash
-kubectl apply -f https://raw.githubusercontent.com/kubernetes-sigs/aws-load-balancer-controller/v2.5.4/docs/examples/2048/2048_full.yaml
-```
+   ```sh
+   kubectl apply -f 2048-game.yaml
+   ```
+3. Verify resources:
 
-**Explanation:**
+   ```sh
+   kubectl get namespaces
+   kubectl get deployments -n game-2048
+   kubectl get pods -n game-2048
+   kubectl get svc -n game-2048
+   kubectl get ingress -n game-2048
+   ```
+4. Once the Ingress is active, AWS will provision an **Application Load Balancer (ALB)**.
 
-* The Ingress routes traffic from **ALB → Service → Pods**
-* Demonstrates full AWS integration with EKS and Fargate
+   * Get the ALB DNS name:
 
-Check ingress:
-
-```bash
-kubectl get ingress
-```
-
----
-
-## 4️⃣ Accessing the Application
-
-* **Internal (ClusterIP)**:
-
-```bash
-kubectl port-forward svc/eks-sample-linux-service 8080:80
-```
-
-* Open browser at `http://localhost:8080`
-
-* **External (LoadBalancer)**:
-
-```bash
-kubectl get svc eks-sample-linux-service
-```
-
-* Use **EXTERNAL-IP** or DNS provided by AWS
-
+     ```sh
+     kubectl get ingress -n game-2048
+     ```
+   * Open the DNS in your browser to play the 2048 game 🎮
 
 ---
 
-## ✅ Summary
-
-* **Deployment:** Manages pods and ensures desired replica count
-* **Service:** Exposes pods internally or externally
-* **Ingress:** Optional HTTP routing through AWS ALB
-* All resources are compatible with **Linux nodes** and **Fargate**
-
----
- **diagram**
+## 📊 Architecture Diagram (Text)
 
 ```
-                   +----------------+
-                   |     User       |
-                   |  (Browser/API) |
-                   +--------+-------+
-                            |
-                            v
-                    +----------------+
-                    |   Ingress      |
-                    |  (AWS ALB)     |
-                    +--------+-------+
-                            |
-                            v
-                    +----------------+
-                    |   Service      |
-                    | ClusterIP/     |
-                    | LoadBalancer   |
-                    +--------+-------+
-                            |
-                            v
-                    +----------------+
-                    | Deployment     |
-                    | (ReplicaSet)   |
-                    +--------+-------+
-                            |
-          +-----------------+-----------------+
-          |                 |                 |
-          v                 v                 v
-+----------------+  +----------------+  +----------------+
-| Pod (nginx)    |  | Pod (nginx)    |  | Pod (nginx)    |
-| Linux/Fargate  |  | Linux/Fargate  |  | Linux/Fargate  |
-+----------------+  +----------------+  +----------------+
+            [ User / Browser ]
+                     |
+                     v
+              +---------------+
+              |   Ingress     |  <-- AWS ALB (Internet-facing)
+              +-------+-------+
+                      |
+                      v
+              +---------------+
+              |   Service     |  <-- NodePort
+              +-------+-------+
+                      |
+            ---------------------
+            |    |     |    |   |
+            v    v     v    v   v
+          +-----+   +-----+   +-----+
+          | Pod |   | Pod |   | Pod |  <-- 5 replicas of 2048 game
+          |     |   |     |   |     |
+          +-----+   +-----+   +-----+
 ```
-
-### How to read it:
-
-1. **User** → sends HTTP requests via browser or API
-2. **Ingress** → routes external requests to the appropriate service using ALB (if configured)
-3. **Service** → routes traffic to pods based on labels
-4. **Deployment** → ensures the correct number of pods are running
-5. **Pods** → actual containers running your application on **Linux nodes or Fargate**
 
 ---
