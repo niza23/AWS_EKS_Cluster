@@ -85,6 +85,8 @@ eksctl utils associate-iam-oidc-provider \
   --approve
 ```
 
+This command tells AWS:
+* Please create an IAM OIDC identity provider for my EKS cluster, so that my Kubernetes service accounts can request temporary AWS IAM credentials.
 ---
 
 👉 In summary:
